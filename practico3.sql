@@ -49,3 +49,5 @@ create table his_empleado (
 alter table empleado
 add column fecha_inicio date;
 update empleado set fecha_inicio= current_timestamp;
+
+--Tone es el mas gay
