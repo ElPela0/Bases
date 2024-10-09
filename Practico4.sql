@@ -121,3 +121,75 @@ INSERT INTO ENVIOS500 VALUES ('P1', 'A3', 700);
 /*
 Con o sin check se permitiria igual la actualizacion
 */
+----------------------------------------------------------------------------------------------------------------------------------
+--4
+CREATE OR REPLACE VIEW tarea10000hs AS
+SELECT *  FROM tarea
+WHERE max_horas > 10000
+WITH LOCAL CHECK OPTION;
+
+CREATE OR REPLACE VIEW tarea10000rep AS
+SELECT *  FROM tarea10000hs
+WHERE id_tarea LIKE '%REP%'
+WITH LOCAL CHECK OPTION;
+
+INSERT INTO tarea10000rep (id_tarea, nombre_tarea, min_horas, max_horas)
+     VALUES ( 'MGR', 'Org Salud', 18000, 20000);
+/*
+No se insertaria porque no cumple con el primer filtro de las vistas
+*/
+INSERT INTO tarea10000hs (id_tarea, nombre_tarea, min_horas, max_horas)
+     VALUES (  'REPA', 'Organiz Salud', 4000, 5500);
+/*
+no se va a insertar porque no cumple con la condicion de tarea10000hs
+*/
+INSERT INTO tarea10000rep (id_tarea, nombre_tarea, min_horas, max_horas)
+     VALUES ( 'CC_REP', 'Organizacion Salud', 8000, 9000);
+/*
+No se inserta porque cumple con tarea10000rep pero como tarea10000hs tiene wco
+se tiene que cumplir la condicion de max_horas > 10000
+*/
+INSERT INTO tarea10000hs (id_tarea, nombre_tarea, min_horas, max_horas)
+     VALUES (  'ROM', 'Org Salud', 10000, 12000);
+/*
+Se inserta en la vista y se actualiza porque como se quiere insertar en tarea10000hs
+solo con que cumpla con max_horas > 100000 ya se inserta
+*/
+-------------------------------------------------------------------------------------------------
+/* 5)
+Empleado dist 20 con local o cascade seria lo mismo porque iria directamente a la tabla base
+pero en empleado dist 20 70 con local si dist20 no tiene WCO solo checkearia si nacio entre el 70  y el 79
+   y con cascade iria a checkear si dist20 cumple con la condicion
+lo mismo para empleado dist 2000
+*/
+
+------------------------------------------------------------------------------------------------------------------------
+CREATE VIEW ciudad_kp_2 AS
+SELECT id_ciudad, nombre_ciudad, c.id_pais, nombre_pais
+FROM ciudad c NATURAL JOIN pais p;
+/*
+La clave es id_ciudad que es la PK de la tabla ciudad y se
+actualizarian los datos de la tabla base a la cual pertenece la
+clave de la vista
+
+Luego de haber identificado la clave el resto es actualizable
+(nombre_ciudad,c.id_pais,c.nombre_pais)
+*/
+CREATE VIEW entregas_kp_3 AS
+SELECT nro_entrega, re.codigo_pelicula, cantidad, titulo
+FROM renglon_entrega re JOIN pelicula p using (codigo_pelicula);
+/*
+la clave va a ser nro_entrega se puede actualizar el resto
+*/
+
+create or replace function fn_ciudad_kp2 () returns trigger as  $$
+    begin
+        if(not exists(select 1 from ciudad where id_ciudad= new.id_ciudad )and tg_op='INSERT') then
+            insert into ciudad(id_ciudad, nombre_ciudad, id_pais) VALUES (new.id_ciudad,new.nombre_ciudad,new.id_pais);
+        end if;
+        if(tg_op = 'UPDATE')then
+            --if por atributo y cambiar
+        end if;
+    end;
+
+    $$ language 'plpgsql'

@@ -48,3 +48,217 @@ ALTER TABLE ENVIO ADD CONSTRAINT ENVIO_PROVEEDOR
 ;
 
 -- End of file.
+
+CODIGO PARA COPIAR EL ESQUEMA PELICULAS A TU ESQUEMA CON TODAS LAS PK Y FK 
+
+create table empleado as (select * from unc_esq_peliculas.empleado);
+create table departamento as (select * from unc_esq_peliculas.departamento);
+create table entrega as (select * from unc_esq_peliculas.entrega);
+create table renglon_entrega as (select * from unc_esq_peliculas.renglon_entrega);
+create table video as (select * from unc_esq_peliculas.video);
+create table distribuidor as (select * from unc_esq_peliculas.distribuidor);
+create table nacional as (select * from unc_esq_peliculas.nacional);
+create table internacional as (select * from unc_esq_peliculas.internacional);
+create table ciudad as (select * from unc_esq_peliculas.ciudad);
+create table tarea as (select * from unc_esq_peliculas.tarea);
+create table pais as (select * from unc_esq_peliculas.pais);
+create table empresa_productora as (select * from unc_esq_peliculas.empresa_productora);
+create table pelicula as (select * from unc_esq_peliculas.pelicula);
+
+
+ALTER TABLE empleado
+ ADD CONSTRAINT PK_id_empleado PRIMARY KEY (id_empleado);
+
+ALTER TABLE pelicula
+    ADD CONSTRAINT PK_codigo_pelicula PRIMARY KEY (codigo_pelicula);
+
+ALTER TABLE empresa_productora
+    ADD CONSTRAINT PK_codico_productora PRIMARY KEY (codigo_productora);
+
+ALTER TABLE pais
+    ADD CONSTRAINT PK_id_pais PRIMARY KEY (id_pais);
+
+ALTER TABLE tarea
+    ADD CONSTRAINT PK_id_tarea PRIMARY KEY (id_tarea);
+
+ALTER TABLE ciudad
+    ADD CONSTRAINT PK_id_ciudad PRIMARY KEY (id_ciudad);
+
+ALTER TABLE entrega
+    ADD CONSTRAINT PK_nro_entrega PRIMARY KEY (nro_entrega);
+
+ALTER TABLE renglon_entrega
+    ADD CONSTRAINT PK_renglon_entrega PRIMARY KEY (nro_entrega,codigo_pelicula);
+
+ALTER TABLE distribuidor
+    ADD CONSTRAINT PK_id_distribuidor PRIMARY KEY (id_distribuidor);
+
+ALTER TABLE departamento
+    ADD CONSTRAINT PK_departamento PRIMARY KEY (id_departamento,id_distribuidor);
+
+ALTER TABLE video
+    ADD CONSTRAINT PK_id_video PRIMARY KEY (id_video);
+
+ALTER TABLE nacional
+    ADD CONSTRAINT PK_nacional PRIMARY KEY (id_distribuidor);
+
+ALTER TABLE internacional
+    ADD CONSTRAINT PK_internacional PRIMARY KEY (id_distribuidor);
+
+
+alter table empleado --1
+    add constraint fk_tarea
+        foreign key (id_tarea)
+            references tarea(id_tarea);
+
+alter table empleado --2
+    add constraint fk_dpto
+        foreign key (id_departamento,id_distribuidor)
+            references departamento(id_departamento,id_distribuidor);
+
+alter table empleado --3
+    add constraint fk_jefe
+        foreign key (id_jefe)
+            references empleado(id_empleado);
+
+alter table entrega --4
+    add constraint fk_id_video
+        foreign key (id_video)
+            references video(id_video);
+
+
+alter table entrega --5
+    add constraint fk_id_distribuidor
+        foreign key (id_distribuidor)
+            references distribuidor(id_distribuidor);
+
+alter table empresa_productora --6
+    add constraint fk_id_ciudad
+        foreign key (id_ciudad)
+            references ciudad(id_ciudad);
+
+alter table pelicula --7
+    add constraint fk_cod_produc
+        foreign key (codigo_productora)
+            references empresa_productora(codigo_productora);
+
+alter table renglon_entrega --8
+    add constraint fk_nro_entrega
+        foreign key (nro_entrega)
+            references entrega(nro_entrega);
+
+alter table renglon_entrega --9
+    add constraint fk_cod_pelic
+        foreign key (codigo_pelicula)
+            references pelicula(codigo_pelicula);
+
+alter table ciudad --10
+    add constraint fk_id_pais
+        foreign key (id_pais)
+            references pais(id_pais);
+
+alter table departamento --11
+    add constraint fk_id_distribuidor
+        foreign key (id_distribuidor)
+            references distribuidor(id_distribuidor);
+
+alter table departamento --12
+    add constraint fk_id_ciudad
+        foreign key (id_ciudad)
+            references ciudad(id_ciudad);
+
+alter table departamento --13
+    add constraint fk_jefe_departamento
+        foreign key (jefe_departamento)
+            references empleado(id_empleado);
+
+alter table internacional --14
+    add constraint fk_id_distribuidor
+        foreign key (id_distribuidor)
+            references distribuidor(id_distribuidor);
+
+alter table nacional --15
+    add constraint fk_iddistribuidor
+        foreign key (id_distribuidor)
+            references distribuidor(id_distribuidor);
+
+alter table nacional --16
+    add constraint fk_mayorista
+        foreign key (id_distrib_mayorista)
+            references internacional(id_distribuidor);
+
+CODIGO PARA COPIAR EL ESQUEMA VOLUNTARIO A TU ESQUEMA CON TODAS LAS PK Y FK 
+
+create table voluntario as (select * from unc_esq_voluntario.voluntario);
+create table tarea as (select * from unc_esq_voluntario.tarea);
+create table historico as (select * from unc_esq_voluntario.historico);
+create table institucion as (select * from unc_esq_voluntario.institucion);
+create table direccion as (select * from unc_esq_voluntario.direccion);
+create table pais as (select * from unc_esq_voluntario.pais);
+create table continente as (select * from unc_esq_voluntario.continente);
+
+ALTER TABLE voluntario
+ ADD CONSTRAINT PK_nro_voluntario PRIMARY KEY (nro_voluntario);
+
+ALTER TABLE historico
+    ADD CONSTRAINT PK_historico PRIMARY KEY (nro_voluntario,fecha_inicio);
+
+ALTER TABLE tarea
+    ADD CONSTRAINT PK_id_tarea PRIMARY KEY (id_tarea);
+
+ALTER TABLE institucion
+    ADD CONSTRAINT PK_id_institucion PRIMARY KEY (id_institucion);
+
+ALTER TABLE direccion
+    ADD CONSTRAINT PK_id_direccion PRIMARY KEY (id_direccion);
+
+ALTER TABLE pais
+    ADD CONSTRAINT PK_id_pais PRIMARY KEY (id_pais);
+
+ALTER TABLE continente
+    ADD CONSTRAINT PK_id_continente PRIMARY KEY (id_continente);
+
+alter table voluntario
+    add constraint fk_coordinador
+        foreign key (id_coordinador)
+            references voluntario(nro_voluntario);
+
+alter table voluntario
+    add constraint fk_institucion
+        foreign key (id_institucion)
+            references institucion(id_institucion);
+
+alter table voluntario
+    add constraint fk_id_tarea
+        foreign key (id_tarea)
+            references tarea(id_tarea);
+
+alter table historico
+    add constraint fk_nro_voluntario
+        foreign key (nro_voluntario)
+            references voluntario(nro_voluntario);
+
+alter table historico
+    add constraint fk_id_institucion
+        foreign key (id_institucion)
+            references institucion(id_institucion);
+
+alter table institucion
+    add constraint fk_id_director
+        foreign key (id_director)
+            references voluntario(nro_voluntario);
+
+alter table institucion
+    add constraint fk_id_direccion
+        foreign key (id_direccion)
+            references direccion(id_direccion);
+
+alter table direccion
+    add constraint fk_id_pais
+        foreign key (id_pais)
+            references pais(id_pais);
+
+alter table pais
+    add constraint fk_id_continente
+        foreign key (id_continente)
+            references continente(id_continente);
