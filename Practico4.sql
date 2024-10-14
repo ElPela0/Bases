@@ -191,5 +191,32 @@ create or replace function fn_ciudad_kp2 () returns trigger as  $$
             --if por atributo y cambiar
         end if;
     end;
-
     $$ language 'plpgsql'
+
+CREATE OR REPLACE TRIGGER tr_ciudad_kp2
+    instead of insert or update on ciudad_kp_2
+    for statement execute function fn_ciudad_kp2();
+-- el otro lo hace dios
+
+--7
+create or replace view Vista1 as (
+select v.nro_voluntario,
+       v.nombre,
+       v.apellido,
+       v.horas_aportadas,
+       t.id_tarea,
+       t.nombre_tarea,
+       t.max_horas,
+       t.min_horas
+    from voluntario v join tarea t
+        on v.id_tarea = t.id_tarea
+                                 )
+-- no es automaticamente actualizable por el join entre voluntario y tarea
+create or replace function fn_vista1_act () returns trigger as $$
+    begin
+        if (tg_op = 'INSERT') then
+            insert into voluntario (nombre, apellido, e_mail, telefono, fecha_nacimiento,id_tarea)
+            values (new.nombre,new.apellido,new.e_mail,new.telefono,new.fecha_nacimiento,new.id_tarea);
+        end if;
+    end;
+    $$
